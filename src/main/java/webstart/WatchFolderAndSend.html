@@ -1,0 +1,93 @@
+<html>
+<head>
+<title>WatchFolderAndSend start with auto Java install</title>
+</head>
+<script language="JavaScript"><!--
+
+var ourWebstartApplicationName = "WatchFolderAndSend.jnlp"
+//var windowsJSE5CabFile = "http://java.sun.com/update/1.5.0/jinstall-1_5_0_11-windows-i586.cab"
+var windowsJSE5CabFile = "http://java.sun.com/update/1.6.0/jinstall-6-windows-i586.cab"
+ 
+function checkPlatform(string)
+{
+    place = detect.indexOf(string) + 1;
+    thestring = string;
+    return place;
+}
+
+function webstartVersionCheck(versionString) {
+    // Mozilla may not recognize new plugins without this refresh
+    navigator.plugins.refresh(true);
+    // First, determine if Web Start is available
+    if (navigator.mimeTypes['application/x-java-jnlp-file']) {
+        // Next, check for appropriate version family
+        for (var i = 0; i < navigator.mimeTypes.length; ++i) {
+            pluginType = navigator.mimeTypes[i].type;
+            if (pluginType == "application/x-java-applet;version=" + versionString) {
+                return true;
+            }
+         }
+     }
+}
+
+function loaded(app) {
+	// see  "Q967 Can you create a complete frameset with only one HTML page?" at http://www.irt.org/script/967.htm
+	//alert("loaded");
+	frames[0].document.location.replace("http://jdl.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=java.com");
+	//frames[0].document.location.replace("http://java.sun.com/update/1.6.0/jre-6-windows-i586.xpi");
+	
+    frames[1].document.open();
+    frames[1].document.writeln('<script language="JavaScript"><!-- ');	// NB. must be writeln not write
+    frames[1].document.writeln('function webstartVersionCheck(versionString) {');
+    frames[1].document.writeln('    navigator.plugins.refresh(true);');
+    frames[1].document.writeln('    if (navigator.mimeTypes["application/x-java-jnlp-file"]) {');
+    frames[1].document.writeln('        for (var i = 0; i < navigator.mimeTypes.length; ++i) {');
+    frames[1].document.writeln('            pluginType = navigator.mimeTypes[i].type;');
+    frames[1].document.writeln('            if (pluginType == "application/x-java-applet;version=" + versionString) {');
+    frames[1].document.writeln('                return true;');
+    frames[1].document.writeln('            }');
+    frames[1].document.writeln('         }');
+    frames[1].document.writeln('     }');
+    frames[1].document.writeln('}');
+    frames[1].document.writeln('function launchJNLP() {');
+    frames[1].document.writeln('    if (webstartVersionCheck("1.5")) {');
+    frames[1].document.writeln('        clearInterval(launchTID);');
+    frames[1].document.writeln('        window.location = "'+app+'";');
+    frames[1].document.writeln('    }');
+    frames[1].document.writeln('}');
+    frames[1].document.writeln('launchTID = setInterval("launchJNLP()",100);');
+    frames[1].document.writeln(' //--\></script>');
+    frames[1].document.close();
+}
+
+var detect = navigator.userAgent.toLowerCase();
+var windowsIE = (checkPlatform("msie") && checkPlatform("win"));
+var thisLocation = location.href.substring(0,location.href.lastIndexOf('/')+1);		// relative location needed; see "http://forum.java.sun.com/thread.jspa?threadID=776748&messageID=4421956"
+//alert("This location is \""+thisLocation+"\"");
+
+if (windowsIE) {
+	//alert("Is windowsIE");
+	document.write("<object codeBase=" + windowsJSE5CabFile + " classid=clsid:5852F5ED-8BF4-11D4-A245-0080C6F74284 height=0 width=0>");
+	document.write("<param name=app value=" + thisLocation + ourWebstartApplicationName +">");
+	document.write("<param name=back value=false>");
+	document.write("</object>");
+}
+else {
+	//alert("Is not windowsIE");
+	if (webstartVersionCheck("1.5")) {
+		//alert("Already correct JRE version ... just launching app");
+		window.location = thisLocation+ourWebstartApplicationName;
+	}
+	else {
+		// could do window.open("http://jdl.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=java.com","needdownload");
+		// but better to do it as two frames, to avoid triggering pop up blocker and user having to deal with that
+		// (could also check if window.open() returns null which means popup blocker fired)
+		document.write('<frameset rows="90%,*" onLoad=loaded("'+thisLocation+ourWebstartApplicationName+'")>');
+		document.write('<frame src="about:blank">'); 
+		document.write('<frame src="about:blank">'); 
+		document.write('<\/frameset>');
+	}
+}
+
+//--></script>
+</html>
