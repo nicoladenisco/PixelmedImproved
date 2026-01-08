@@ -1,24 +1,22 @@
 /* Copyright (c) 2001-2008, David A. Clunie DBA Pixelmed Publishing. All rights reserved. */
 package com.pixelmed.network;
 
-import java.util.LinkedList;
-import java.io.IOException;
-import java.net.Socket;
-
-import java.lang.reflect.*;
-
 import com.pixelmed.dicom.VersionAndConstants;
+import java.io.IOException;
+import java.lang.reflect.*;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
- * <p>A factory object of static methods that can accept and initiate associations.</p>
+ * <p>
+ * A factory object of static methods that can accept and initiate associations.</p>
  *
  * @author	dclunie
  */
 public class AssociationFactory
 {
-  private static final String identString =
-     "@(#) $Header: /var/cvs-rep/pmedim/src/com/pixelmed/network/AssociationFactory.java,v 1.2 2011-10-03 18:50:08 nicola Exp $";
+  private static final String identString = "@(#) $Header: /var/cvs-rep/pmedim/src/com/pixelmed/network/AssociationFactory.java,v 1.2 2011-10-03 18:50:08 nicola Exp $";
 
   // Work around "http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5092063" Java 1.5 on Windows - Extremely slow socket creation using new Socket("ip-address", port)
   static
@@ -61,7 +59,8 @@ public class AssociationFactory
   static private final int defaultSendBufferSize = 0;		// do not have a good reationale for increasing this
 
   /**
-   * <p>Get the default Maximum PDU Size that we would like to receive.</p>
+   * <p>
+   * Get the default Maximum PDU Size that we would like to receive.</p>
    *
    * @return	the default Maximum PDU Size
    */
@@ -71,7 +70,8 @@ public class AssociationFactory
   }
 
   /**
-   * <p>Get the default TCP socket receive buffer size to use to set the socket options.</p>
+   * <p>
+   * Get the default TCP socket receive buffer size to use to set the socket options.</p>
    *
    * @return	the receive buffer size, 0 means leave the default operating system value alone
    */
@@ -81,7 +81,8 @@ public class AssociationFactory
   }
 
   /**
-   * <p>Get the default TCP socket send buffer size to use to set the socket options.</p>
+   * <p>
+   * Get the default TCP socket send buffer size to use to set the socket options.</p>
    *
    * @return	the send buffer size, 0 means leave the default operating system value alone
    */
@@ -96,31 +97,32 @@ public class AssociationFactory
    * The default Implementation Class UID and Implementation Version
    * of the toolkit are used.
    *
-   * @param	hostname			hostname or IP address (dotted quad) component of presentation address of the remote AE (them)
-   * @param	port				TCP port component of presentation address of the remote AE (them)
-   * @param	calledAETitle			the AE Title of the remote (their) end of the association
-   * @param	callingAETitle			the AE Title of the local (our) end of the association
+   * @param	hostname	hostname or IP address (dotted quad) component of presentation address of the remote AE (them)
+   * @param	port	TCP port component of presentation address of the remote AE (them)
+   * @param	calledAETitle	the AE Title of the remote (their) end of the association
+   * @param	callingAETitle	the AE Title of the local (our) end of the association
    * @param	ourMaximumLengthReceived	the maximum PDU length that we will offer to receive
-   * @param	socketReceiveBufferSize		the TCP socket receive buffer size to set (if possible), 0 means leave at the default
-   * @param	socketSendBufferSize		the TCP socket send buffer size to set (if possible), 0 means leave at the default
-   * @param	presentationContexts		a java.util.LinkedList of {@link PresentationContext PresentationContext} objects,
-   *						each of which contains an Abstract Syntax (SOP Class UID) and one or more Transfer Syntaxes
-   * @param	scuSCPRoleSelections		a java.util.LinkedList of {@link SCUSCPRoleSelection SCUSCPRoleSelection} objects,
-   *						each of which contains an Abstract Syntax (SOP Class UID) and specifies whether SCU and/or SCP roles are supported
-   * @param	secureTransport		true if to use secure transport protocol
-   * @param	username			may be null if no user identity
-   * @param	password			may be null if no user identity or no password required
-   * @param	debugLevel			0 for no debugging, > 0 for increasingly verbose debugging
-   * @return					an open association in state 6 - Data Transfer
+   * @param	socketReceiveBufferSize	the TCP socket receive buffer size to set (if possible), 0 means leave at the default
+   * @param	socketSendBufferSize	the TCP socket send buffer size to set (if possible), 0 means leave at the default
+   * @param	presentationContexts	a java.util.LinkedList of {@link PresentationContext PresentationContext} objects,
+   * each of which contains an Abstract Syntax (SOP Class UID) and one or more Transfer Syntaxes
+   * @param	scuSCPRoleSelections	a java.util.LinkedList of {@link SCUSCPRoleSelection SCUSCPRoleSelection} objects,
+   * each of which contains an Abstract Syntax (SOP Class UID) and specifies whether SCU and/or SCP roles are supported
+   * @param	secureTransport	true if to use secure transport protocol
+   * @param	username	may be null if no user identity
+   * @param	password	may be null if no user identity or no password required
+   * @param	debugLevel	0 for no debugging, > 0 for increasingly verbose debugging
+   * @return	an open association in state 6 - Data Transfer
    * @exception	IOException
-   * @exception	DicomNetworkException		thrown for A-ASSOCIATE-RJ, A-ABORT and A-P-ABORT indications
+   * @exception	DicomNetworkException	thrown for A-ASSOCIATE-RJ, A-ABORT and A-P-ABORT indications
    */
   static public AssociationInitiator createNewAssociation(String hostname, int port, String calledAETitle,
      String callingAETitle,
      int ourMaximumLengthReceived, int socketReceiveBufferSize, int socketSendBufferSize,
      LinkedList presentationContexts, LinkedList scuSCPRoleSelections,
      boolean secureTransport, String username, String password,
-     int debugLevel) throws DicomNetworkException, IOException
+     int debugLevel)
+     throws DicomNetworkException, IOException
   {
 
     return new AssociationInitiator(hostname, port, calledAETitle, callingAETitle,
@@ -136,25 +138,26 @@ public class AssociationFactory
    * The default Implementation Class UID, Implementation Version and Maximum PDU Size
    * of the toolkit are used.
    *
-   * @param	hostname			hostname or IP address (dotted quad) component of presentation address of the remote AE (them)
-   * @param	port				TCP port component of presentation address of the remote AE (them)
-   * @param	calledAETitle			the AE Title of the remote (their) end of the association
-   * @param	callingAETitle			the AE Title of the local (our) end of the association
-   * @param	presentationContexts		a java.util.LinkedList of {@link PresentationContext PresentationContext} objects,
-   *						each of which contains an Abstract Syntax (SOP Class UID) and one or more Transfer Syntaxes
-   * @param	scuSCPRoleSelections		a java.util.LinkedList of {@link SCUSCPRoleSelection SCUSCPRoleSelection} objects,
-   *						each of which contains an Abstract Syntax (SOP Class UID) and specifies whether SCU and/or SCP roles are supported
-   * @param	secureTransport		true if to use secure transport protocol
-   * @param	debugLevel			0 for no debugging, > 0 for increasingly verbose debugging
-   * @return					an open association in state 6 - Data Transfer
+   * @param	hostname	hostname or IP address (dotted quad) component of presentation address of the remote AE (them)
+   * @param	port	TCP port component of presentation address of the remote AE (them)
+   * @param	calledAETitle	the AE Title of the remote (their) end of the association
+   * @param	callingAETitle	the AE Title of the local (our) end of the association
+   * @param	presentationContexts	a java.util.LinkedList of {@link PresentationContext PresentationContext} objects,
+   * each of which contains an Abstract Syntax (SOP Class UID) and one or more Transfer Syntaxes
+   * @param	scuSCPRoleSelections	a java.util.LinkedList of {@link SCUSCPRoleSelection SCUSCPRoleSelection} objects,
+   * each of which contains an Abstract Syntax (SOP Class UID) and specifies whether SCU and/or SCP roles are supported
+   * @param	secureTransport	true if to use secure transport protocol
+   * @param	debugLevel	0 for no debugging, > 0 for increasingly verbose debugging
+   * @return	an open association in state 6 - Data Transfer
    * @exception	IOException
-   * @exception	DicomNetworkException		thrown for A-ASSOCIATE-RJ, A-ABORT and A-P-ABORT indications
+   * @exception	DicomNetworkException	thrown for A-ASSOCIATE-RJ, A-ABORT and A-P-ABORT indications
    */
   static public AssociationInitiator createNewAssociation(String hostname, int port, String calledAETitle,
      String callingAETitle,
      LinkedList presentationContexts, LinkedList scuSCPRoleSelections,
      boolean secureTransport,
-     int debugLevel) throws DicomNetworkException, IOException
+     int debugLevel)
+     throws DicomNetworkException, IOException
   {
 
     return new AssociationInitiator(hostname, port, calledAETitle, callingAETitle,
@@ -172,27 +175,28 @@ public class AssociationFactory
    * The default Implementation Class UID, Implementation Version and Maximum PDU Size
    * of the toolkit are used.
    *
-   * @param	hostname			hostname or IP address (dotted quad) component of presentation address of the remote AE (them)
-   * @param	port				TCP port component of presentation address of the remote AE (them)
-   * @param	calledAETitle			the AE Title of the remote (their) end of the association
-   * @param	callingAETitle			the AE Title of the local (our) end of the association
-   * @param	presentationContexts		a java.util.LinkedList of {@link PresentationContext PresentationContext} objects,
-   *						each of which contains an Abstract Syntax (SOP Class UID) and one or more Transfer Syntaxes
-   * @param	scuSCPRoleSelections		a java.util.LinkedList of {@link SCUSCPRoleSelection SCUSCPRoleSelection} objects,
-   *						each of which contains an Abstract Syntax (SOP Class UID) and specifies whether SCU and/or SCP roles are supported
-   * @param	secureTransport		true if to use secure transport protocol
-   * @param	username			may be null if no user identity
-   * @param	password			may be null if no user identity or no password required
-   * @param	debugLevel			0 for no debugging, > 0 for increasingly verbose debugging
-   * @return					an open association in state 6 - Data Transfer
+   * @param	hostname	hostname or IP address (dotted quad) component of presentation address of the remote AE (them)
+   * @param	port	TCP port component of presentation address of the remote AE (them)
+   * @param	calledAETitle	the AE Title of the remote (their) end of the association
+   * @param	callingAETitle	the AE Title of the local (our) end of the association
+   * @param	presentationContexts	a java.util.LinkedList of {@link PresentationContext PresentationContext} objects,
+   * each of which contains an Abstract Syntax (SOP Class UID) and one or more Transfer Syntaxes
+   * @param	scuSCPRoleSelections	a java.util.LinkedList of {@link SCUSCPRoleSelection SCUSCPRoleSelection} objects,
+   * each of which contains an Abstract Syntax (SOP Class UID) and specifies whether SCU and/or SCP roles are supported
+   * @param	secureTransport	true if to use secure transport protocol
+   * @param	username	may be null if no user identity
+   * @param	password	may be null if no user identity or no password required
+   * @param	debugLevel	0 for no debugging, > 0 for increasingly verbose debugging
+   * @return	an open association in state 6 - Data Transfer
    * @exception	IOException
-   * @exception	DicomNetworkException		thrown for A-ASSOCIATE-RJ, A-ABORT and A-P-ABORT indications
+   * @exception	DicomNetworkException	thrown for A-ASSOCIATE-RJ, A-ABORT and A-P-ABORT indications
    */
   static public AssociationInitiator createNewAssociation(String hostname, int port, String calledAETitle,
      String callingAETitle,
      LinkedList presentationContexts, LinkedList scuSCPRoleSelections,
      boolean secureTransport, String username, String password,
-     int debugLevel) throws DicomNetworkException, IOException
+     int debugLevel)
+     throws DicomNetworkException, IOException
   {
 
     return new AssociationInitiator(hostname, port, calledAETitle, callingAETitle,
@@ -214,19 +218,21 @@ public class AssociationFactory
    *
    * @deprecated	See {@link #createNewAssociation(Socket,String,int,int,int,PresentationContextSelectionPolicy,int) createNewAssociation()}
    *
-   * @param	socket				already open transport connection on which the association is to be accepted
-   * @param	calledAETitle			the AE Title of the local (our) end of the association
+   * @param	socket	already open transport connection on which the association is to be accepted
+   * @param	calledAETitle	the AE Title of the local (our) end of the association
    * @param	ourMaximumLengthReceived	the maximum PDU length that we will offer to receive
-   * @param	socketReceiveBufferSize		the TCP socket receive buffer size to set (if possible), 0 means leave at the default
-   * @param	socketSendBufferSize		the TCP socket send buffer size to set (if possible), 0 means leave at the default
-   * @param	debugLevel			0 for no debugging, > 0 for increasingly verbose debugging
-   * @return					an open association in state 6 - Data Transfer
+   * @param	socketReceiveBufferSize	the TCP socket receive buffer size to set (if possible), 0 means leave at the default
+   * @param	socketSendBufferSize	the TCP socket send buffer size to set (if possible), 0 means leave at the default
+   * @param	debugLevel	0 for no debugging, > 0 for increasingly verbose debugging
+   * @return	an open association in state 6 - Data Transfer
    * @exception	IOException
-   * @exception	DicomNetworkException		thrown for A-ABORT and A-P-ABORT indications
+   * @exception	DicomNetworkException	thrown for A-ABORT and A-P-ABORT indications
    */
+  @Deprecated
   static public AssociationAcceptor createNewAssociation(Socket socket, String calledAETitle,
      int ourMaximumLengthReceived, int socketReceiveBufferSize, int socketSendBufferSize,
-     int debugLevel) throws DicomNetworkException, IOException
+     int debugLevel)
+     throws DicomNetworkException, IOException
   {
     AssociationAcceptor aa = new AssociationAcceptor(debugLevel);
 
@@ -245,22 +251,23 @@ public class AssociationFactory
    * The default Implementation Class UID and Implementation Version
    * of the toolkit are used.
    *
-   * @param	socket				already open transport connection on which the association is to be accepted
-   * @param	calledAETitle			the AE Title of the local (our) end of the association
+   * @param	socket	already open transport connection on which the association is to be accepted
+   * @param	calledAETitle	the AE Title of the local (our) end of the association
    * @param	ourMaximumLengthReceived	the maximum PDU length that we will offer to receive
-   * @param	socketReceiveBufferSize		the TCP socket receive buffer size to set (if possible), 0 means leave at the default
-   * @param	socketSendBufferSize		the TCP socket send buffer size to set (if possible), 0 means leave at the default
+   * @param	socketReceiveBufferSize	the TCP socket receive buffer size to set (if possible), 0 means leave at the default
+   * @param	socketSendBufferSize	the TCP socket send buffer size to set (if possible), 0 means leave at the default
    * @param	presentationContextSelectionPolicy	which SOP Classes and Transfer Syntaxes to accept and reject
-   * @param	debugLevel			0 for no debugging, > 0 for increasingly verbose debugging
-   * @return					an open association in state 6 - Data Transfer
+   * @param	debugLevel	0 for no debugging, > 0 for increasingly verbose debugging
+   * @return	an open association in state 6 - Data Transfer
    * @exception	IOException
-   * @exception	DicomNetworkException		thrown for A-ABORT and A-P-ABORT indications
+   * @exception	DicomNetworkException	thrown for A-ABORT and A-P-ABORT indications
    */
   static public AssociationAcceptor createNewAssociation(Socket socket, String calledAETitle,
      int ourMaximumLengthReceived, int socketReceiveBufferSize, int socketSendBufferSize,
      PresentationContextSelectionPolicy presentationContextSelectionPolicy,
      ArrayList<AssociationListener> arAssocListner,
-     int debugLevel) throws DicomNetworkException, IOException
+     int debugLevel)
+     throws DicomNetworkException, IOException
   {
     AssociationAcceptor aa = new AssociationAcceptor(debugLevel);
 
@@ -281,17 +288,18 @@ public class AssociationFactory
    *
    * The default maximum length received, receive buffer size and send buffer size are used.
    *
-   * @param	socket				already open transport connection on which the association is to be accepted
-   * @param	calledAETitle			the AE Title of the local (our) end of the association
+   * @param	socket	already open transport connection on which the association is to be accepted
+   * @param	calledAETitle	the AE Title of the local (our) end of the association
    * @param	presentationContextSelectionPolicy	which SOP Classes and Transfer Syntaxes to accept and reject
-   * @param	debugLevel			0 for no debugging, > 0 for increasingly verbose debugging
-   * @return					an open association in state 6 - Data Transfer
+   * @param	debugLevel	0 for no debugging, > 0 for increasingly verbose debugging
+   * @return	an open association in state 6 - Data Transfer
    * @exception	IOException
-   * @exception	DicomNetworkException		thrown for A-ABORT and A-P-ABORT indications
+   * @exception	DicomNetworkException	thrown for A-ABORT and A-P-ABORT indications
    */
   static public AssociationAcceptor createNewAssociation(Socket socket, String calledAETitle,
      PresentationContextSelectionPolicy presentationContextSelectionPolicy,
-     int debugLevel) throws DicomNetworkException, IOException
+     int debugLevel)
+     throws DicomNetworkException, IOException
   {
     AssociationAcceptor aa = new AssociationAcceptor(debugLevel);
 
@@ -318,15 +326,16 @@ public class AssociationFactory
    *
    * @deprecated	See {@link #createNewAssociation(Socket,String,PresentationContextSelectionPolicy,int) createNewAssociation()}
    *
-   * @param	socket				already open transport connection on which the association is to be accepted
-   * @param	calledAETitle			the AE Title of the local (our) end of the association
-   * @param	debugLevel			0 for no debugging, > 0 for increasingly verbose debugging
-   * @return					an open association in state 6 - Data Transfer
+   * @param	socket	already open transport connection on which the association is to be accepted
+   * @param	calledAETitle	the AE Title of the local (our) end of the association
+   * @param	debugLevel	0 for no debugging, > 0 for increasingly verbose debugging
+   * @return	an open association in state 6 - Data Transfer
    * @exception	IOException
-   * @exception	DicomNetworkException		thrown for A-ABORT and A-P-ABORT indications
+   * @exception	DicomNetworkException	thrown for A-ABORT and A-P-ABORT indications
    */
-  static public AssociationAcceptor createNewAssociation(Socket socket, String calledAETitle,
-     int debugLevel) throws DicomNetworkException, IOException
+  @Deprecated
+  static public AssociationAcceptor createNewAssociation(Socket socket, String calledAETitle, int debugLevel)
+     throws DicomNetworkException, IOException
   {
     AssociationAcceptor aa = new AssociationAcceptor(debugLevel);
 

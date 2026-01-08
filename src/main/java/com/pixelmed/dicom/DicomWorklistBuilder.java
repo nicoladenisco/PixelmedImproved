@@ -35,36 +35,39 @@ public class DicomWorklistBuilder
    * Create an attribute list suitable to become a worklist record.
    *
    * According to the
-   *  DICOM standard part 4 annex K, the following attributes are type 1 attributes in
-   *  C-Find RSP messages:
-   *        Attribute                             Tag      Return Key Type
-   *    SpecificCharacterSet                  (0008,0005)        1C (will be checked in WlmDataSourceFileSystem::StartFindRequest(...); this attribute does not have to be checked here)
-   *    ScheduledProcedureStepSequence        (0040,0100)        1
-   *     > ScheduledStationAETitle            (0040,0001)        1
-   *     > ScheduledProcedureStepStartDate    (0040,0002)        1
-   *     > ScheduledProcedureStepStartTime    (0040,0003)        1
-   *     > Modality                           (0008,0060)        1
-   *     > ScheduledProcedureStepDescription  (0040,0007)        1C (The ScheduledProcedureStepDescription (0040,0007) or the ScheduledProtocolCodeSequence (0040,0008) or both shall be supported by the SCP; we actually support both, so we have to check if at least one of the two attributes contains valid information.)
-   *     > ScheduledProtocolCodeSequence      (0040,0008)        1C (see abobve)
-   *     > > CodeValue                        (0008,0100)        1
-   *     > > CodingSchemeDesignator           (0008,0102)        1
-   *     > ScheduledProcedureStepID           (0040,0009)        1
-   *    RequestedProcedureID                  (0040,1001)        1
-   *    RequestedProcedureDescription         (0032,1060)        1C (The RequestedProcedureDescription (0032,1060) or the RequestedProcedureCodeSequence (0032,1064) or both shall be supported by the SCP; we actually support both, so we have to check if at least one of the two attributes contains valid information.)
-   *    RequestedProcedureCodeSequence        (0032,1064)        1C (see abobve)
-   *     > > CodeValue                        (0008,0100)        1
-   *     > > CodingSchemeDesignator           (0008,0102)        1
-   *    StudyInstanceUID                      (0020,000D)        1
-   *    ReferencedStudySequence               (0008,1110)        2
-   *     > ReferencedSOPClassUID              (0008,1150)        1C (Required if a sequence item is present)
-   *     > ReferencedSOPInstanceUID           (0008,1155)        1C (Required if a sequence item is present)
-   *    ReferencedPatientSequence             (0008,1120)        2
-   *     > ReferencedSOPClassUID              (0008,1150)        1C (Required if a sequence item is present)
-   *     > ReferencedSOPInstanceUID           (0008,1155)        1C (Required if a sequence item is present)
-   *    PatientsName                          (0010,0010)        1
-   *    PatientID                             (0010,0020)        1
+   * DICOM standard part 4 annex K, the following attributes are type 1 attributes in
+   * C-Find RSP messages:
+   * Attribute Tag Return Key Type
+   * SpecificCharacterSet (0008,0005) 1C (will be checked in WlmDataSourceFileSystem::StartFindRequest(...); this attribute does not have to be checked here)
+   * ScheduledProcedureStepSequence (0040,0100) 1
+   * > ScheduledStationAETitle (0040,0001) 1
+   * > ScheduledProcedureStepStartDate (0040,0002) 1
+   * > ScheduledProcedureStepStartTime (0040,0003) 1
+   * > Modality (0008,0060) 1
+   * > ScheduledProcedureStepDescription (0040,0007) 1C (The ScheduledProcedureStepDescription (0040,0007) or the ScheduledProtocolCodeSequence (0040,0008) or both shall be supported by the SCP; we
+   * actually support both, so we have to check if at least one of the two attributes contains valid information.)
+   * > ScheduledProtocolCodeSequence (0040,0008) 1C (see abobve)
+   * > > CodeValue (0008,0100) 1
+   * > > CodingSchemeDesignator (0008,0102) 1
+   * > ScheduledProcedureStepID (0040,0009) 1
+   * RequestedProcedureID (0040,1001) 1
+   * RequestedProcedureDescription (0032,1060) 1C (The RequestedProcedureDescription (0032,1060) or the RequestedProcedureCodeSequence (0032,1064) or both shall be supported by the SCP; we actually
+   * support both, so we have to check if at least one of the two attributes contains valid information.)
+   * RequestedProcedureCodeSequence (0032,1064) 1C (see abobve)
+   * > > CodeValue (0008,0100) 1
+   * > > CodingSchemeDesignator (0008,0102) 1
+   * StudyInstanceUID (0020,000D) 1
+   * ReferencedStudySequence (0008,1110) 2
+   * > ReferencedSOPClassUID (0008,1150) 1C (Required if a sequence item is present)
+   * > ReferencedSOPInstanceUID (0008,1155) 1C (Required if a sequence item is present)
+   * ReferencedPatientSequence (0008,1120) 2
+   * > ReferencedSOPClassUID (0008,1150) 1C (Required if a sequence item is present)
+   * > ReferencedSOPInstanceUID (0008,1155) 1C (Required if a sequence item is present)
+   * PatientsName (0010,0010) 1
+   * PatientID (0010,0020) 1
    *
-   *  @return a populated attribute list
+   * @return a populated attribute list
+   * @throws java.lang.Exception
    */
   public synchronized DicomAttributeList createDicomWorklistEntry()
      throws Exception
@@ -126,7 +129,6 @@ public class DicomWorklistBuilder
 //    alRps.putValue(TagFromName.ReferencedSOPClassUID, "");
 //    alRps.putValue(TagFromName.ReferencedSOPInstanceUID, "");
 //    rps.addItem(alRps);
-
     dataset.putValue(TagFromName.PatientName, patName);
     dataset.putValue(TagFromName.PatientID, patID);
     dataset.putValue(TagFromName.IssuerOfPatientID, "");
@@ -157,6 +159,7 @@ public class DicomWorklistBuilder
    * The file have a meta header and a dataset with
    * all field populated with createDicomWorklistEntry().
    * @param fileWl file to write
+   * @return attribute list written in file
    * @throws Exception
    */
   public synchronized DicomAttributeList createDicomWorklistFile(File fileWl)
@@ -179,14 +182,14 @@ public class DicomWorklistBuilder
        TransferSyntax.ExplicitVRLittleEndian,
        null);
 
-    OutputStream out = new BufferedOutputStream(new FileOutputStream(fileWl));
-    DicomOutputStream dout = new DicomOutputStream(out,
-       TransferSyntax.ExplicitVRLittleEndian, TransferSyntax.ExplicitVRLittleEndian);
-    fmi.getAttributeList().write(dout, true);
-    al.write(dout, false);
-    dout.flush();
-    dout.close();
-    out.close();
+    try(OutputStream out = new BufferedOutputStream(new FileOutputStream(fileWl));
+       DicomOutputStream dout = new DicomOutputStream(out,
+          TransferSyntax.ExplicitVRLittleEndian, TransferSyntax.ExplicitVRLittleEndian))
+    {
+      fmi.getAttributeList().write(dout, true);
+      al.write(dout, false);
+      dout.flush();
+    }
 
     return al;
   }
