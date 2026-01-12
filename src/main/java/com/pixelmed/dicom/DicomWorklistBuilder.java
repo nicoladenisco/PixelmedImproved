@@ -191,6 +191,13 @@ public class DicomWorklistBuilder
       dout.flush();
     }
 
+    // imposta data e ora del file al valore di studyDate
+    if(studyDate != null)
+    {
+      long tmill = studyDate.getTime();
+      fileWl.setLastModified(tmill);
+    }
+
     return al;
   }
 }
