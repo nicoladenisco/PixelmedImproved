@@ -1,13 +1,12 @@
 /* Copyright (c) 2001-2010, David A. Clunie DBA Pixelmed Publishing. All rights reserved. */
 package com.pixelmed.dicom;
 
-import java.util.StringTokenizer;
-import java.rmi.server.UID;
-import java.rmi.dgc.VMID;
-
-import java.util.HashSet;		// for main() testing for uniqueness
-
 import com.pixelmed.utils.MACAddress;
+import java.math.BigInteger;
+import java.rmi.dgc.VMID;
+import java.rmi.server.UID;
+import java.util.HashSet;
+import java.util.UUID;
 
 /**
  * <p>
@@ -71,6 +70,18 @@ public class UIDGenerator
     newStamp();
   }
 
+  public long parse(String ss)
+  {
+    String s = ss.trim();
+    if(s.startsWith("-"))
+      s = s.substring(1);
+
+    if((s.length() % 2) != 0)
+      s = "0" + s;
+
+    return Math.abs(Long.parseLong(s, 16));
+  }
+
   /**
    * <p>
    * Reinitialize the UID generator with a new stamp using random and installation specific elements to create a unique root.</p>
@@ -84,21 +95,22 @@ public class UIDGenerator
     long ourMachine = Math.abs(machineAddress);		// don't mess with the real machine address; need it unchanged for next time
 
     String string = new UID().toString();	// e.g. "19c082:fb77ce774a:-8000"
-    StringTokenizer st = new StringTokenizer(string, ":");
-    int ourUnique = Math.abs(Integer.parseInt(st.nextToken()));
-    long ourTime = Math.abs(Long.parseLong(st.nextToken()));
-    int ourCount = Math.abs(Short.parseShort(st.nextToken()) + 0x8000);	// why add 0x8000 ? because usually starts at -8000, which wastes 4 digits
+
+    String[] ss = string.split("\\:");
+    long ourUnique = parse(ss[0]);
+    long ourTime = parse(ss[1]);
+    long ourCount = parse(ss[2]);
 
     String machineString = Long.toString(ourMachine);
-    String vmString = Integer.toString(ourUnique);
+    String vmString = Integer.toString((int) ourUnique);
     String timeString = Long.toString(ourTime);
-    String countString = Integer.toString(ourCount);
+    String countString = Integer.toString((int) ourCount);
 
     while(ourUnique > 10000 && machineString.length() + vmString.length() + timeString.length() + countString.length() > maxLongStampComponentLength)
     {
 //System.err.println("stamp length > maximum which is "+maxStampComponentLength+" shortening VM specific string");
       ourUnique = ourUnique / 10;
-      vmString = Integer.toString(ourUnique);
+      vmString = Integer.toString((int) ourUnique);
     }
     while(ourMachine > 0 && machineString.length() + vmString.length() + timeString.length() + countString.length() > maxLongStampComponentLength)
     {
@@ -113,7 +125,7 @@ public class UIDGenerator
     {
 //System.err.println("stamp length > maximum which is "+maxStampComponentLength+" shortening VM specific string");
       ourUnique = ourUnique / 10;
-      vmString = Integer.toString(ourUnique);
+      vmString = Integer.toString((int) ourUnique);
     }
     while(ourMachine > 0 && machineString.length() + vmString.length() + timeString.length() + countString.length() > maxStampComponentLength)
     {
@@ -281,6 +293,38 @@ public class UIDGenerator
   }
 
   /**
+   * Genera UID Dicom a partire da uno UUID random.
+   * <pre>
+   * Lo standard OID 2.25.
+   *
+   * Esiste un metodo standardizzato (accettato da DICOM e ITU) per convertire uno UUID in un OID (e quindi in un DICOM UID).
+   * Si utilizza il prefisso radice (root) 2.25.
+   *
+   * Ecco l'algoritmo:
+   * Genera un UUID (es. UUID v4).
+   * Considera l'UUID come un unico numero intero a 128 bit (esadecimale).
+   * Converti quel numero esadecimale in un numero decimale (intero grandissimo).
+   * Anteponi la stringa "2.25." al numero decimale ottenuto.
+   * </pre>
+   * @return uno UID Dicom valido
+   */
+  public static String generateDicomUidFromUUID()
+  {
+    // 1. Genera un UUID casuale (v4)
+    UUID uuid = UUID.randomUUID();
+
+    // 2. Prepara l'UUID come stringa esadecimale pulita (rimuovi i trattini)
+    String uuidHex = uuid.toString().replace("-", "");
+
+    // 3. Converti l'esadecimale in un BigInteger (Intero a precisione arbitraria)
+    // Il parametro 16 indica che la stringa di input è in base 16 (hex)
+    BigInteger bigInt = new BigInteger(uuidHex, 16);
+
+    // 4. Anteponi il prefisso standard "2.25." e converti il numero in stringa decimale
+    return "2.25." + bigInt.toString();
+  }
+
+  /**
    * <p>
    * Test generating SOP Instance UIDs.</p>
    *
@@ -290,7 +334,8 @@ public class UIDGenerator
   {
     try
     {
-      int count = Integer.parseInt(arg[0]);
+      //int count = Integer.parseInt(arg[0]);
+      int count = 1;
       String uids[] = new String[count];
       long startTime = System.currentTimeMillis();
       UIDGenerator generator = new UIDGenerator();
@@ -298,13 +343,13 @@ public class UIDGenerator
       {
         //uids[i]=generator.getNewSOPInstanceUID("8893429920299202","87359321","18748397");
         uids[i] = generator.getAnotherNewUID();
-//System.err.println("uids[i]=\""+uids[i]+"\"");
+        System.err.println("uids[i]=\"" + uids[i] + "\"");
       }
       long endTime = System.currentTimeMillis();
       long totalTime = endTime - startTime;
       double timePerUID = (double) totalTime / count;
       System.err.println("count=" + count + ", total time=" + totalTime + " ms, time per UID=" + timePerUID + " ms, uids/ms=" + (1 / timePerUID));
-//System.err.println("uids[0]=\""+uids[0]+"\"");
+      System.err.println("uids[0]=\"" + uids[0] + "\"");
 
       // Check are all unique
       boolean success = true;
